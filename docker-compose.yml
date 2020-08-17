@@ -1,0 +1,50 @@
+version: '3.7'
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./:/usr/src/currency_rates/
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./.env.dev
+
+  redis:
+    image: redis:alpine
+
+  celery:
+    build: .
+    command: celery -A currency_rate worker -l info
+    volumes:
+      - ./:/usr/src/currency_rates/
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - redis
+
+  celery-beat:
+    build: .
+    command: celery -A currency_rate beat -l info
+    volumes:
+      - ./:/usr/src/currency_rates/
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - redis
+
+  db:
+    image: postgres:12.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=cur
+      - POSTGRES_PASSWORD=cur
+      - POSTGRES_DB=cur
+
+volumes:
+  postgres_data:

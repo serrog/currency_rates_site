@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Currency rates</title>
+</head>
+<body>
+    {% for pair in currency_pairs %}
+        <div>
+            <h3>{{ pair }}</h3>
+            <p>Latest price: {{ pair.get_latest_rate.price }}</p>
+            <p>Avg price: {{ pair.avg_price }}</p>
+        </div>
+    {% endfor %}
+    <form method="post">{% csrf_token %}
+        {{ form.as_p }}
+    <input type="submit" value="Add pair">
+</form>
+</body>
+</html>
